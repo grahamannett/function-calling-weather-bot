@@ -6,7 +6,7 @@ from scaled_cognition_takehome.conversation_handler import ConversationHandler
 
 def main(args: argparse.Namespace):
     convo_handler = ConversationHandler(
-        weather_api_key=args.weather_api_key,
+        weather_api_key=args.open_weather_api_key,
         bing_api_key=args.bing_api_key,
         openai_api_key=args.openai_api_key,
     )

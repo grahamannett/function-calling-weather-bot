@@ -1,18 +1,22 @@
 # scaled-cognition-takehome Project
 
-The project was init with pdm so it is possibly more complex than necessary but I find that it's better to just always use something like pdm to start a project rather than attempting to migrate as it can be a pain.
+Graham Annett
 
-To setup, you can use `pip install -r requirements && pip install -e .` or `pdm install && pdm sync` should also work.
+The project was initialized with pdm so it is possibly more boilerplate than necessary but I find that it's better to just always use something like pdm to start a project rather than attempting to migrate as it can be a pain.
+
+To setup, you can use `pip install -r requirements && pip install -e .` or `pdm install && pdm sync` should also work. I believe the only external dependencies are `requests` `openai` and `rich`.  I used rich to print to the console as I like the colorized output but it is probably not really necessary for this project. The `console.py` is just a generic file I have used in a few of my projects that gives a nice interface to print and log to the console.
 
 I have all the keys in an `.env` file but you can pass them in as environment variables or as arguments to the main.py file.
 
-env file will look like:
+env file will look like (and can be sourced like `source .env` or set the ENV variables in the terminal or pass in to the main.py file):
 
 ```
 OPENAI_API_KEY=sk-...
 OPEN_WEATHER_API_KEY=9...
 BING_API_KEY=f...
 ```
+
+To make the zip file I used `zip -r graham_annett.zip src/ tests/ .gitignore main.py .pdm-python pdm.lock pyproject.toml README.md requirements.txt ` so hopefully it has everything and not included the `.venv` or `.git` folders.
 
 # Overview
 
