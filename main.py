@@ -1,5 +1,6 @@
-from os import getenv
 import argparse
+from os import getenv
+
 from scaled_cognition_takehome.conversation_handler import ConversationHandler
 
 
@@ -28,7 +29,7 @@ def get_args():
     )
 
     parser.add_argument(
-        "--weather-api-key",
+        "--open-weather-api-key",
         help="Open Weather API key",
         default=getenv("OPEN_WEATHER_API_KEY"),
     )

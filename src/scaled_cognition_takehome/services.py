@@ -1,16 +1,13 @@
-import json
-from functools import partial
-from pathlib import Path
 from dataclasses import dataclass
+from functools import partial
 
 import requests
 
-from scaled_cognition_takehome import console
-from scaled_cognition_takehome import services_spec
+from scaled_cognition_takehome import console, services_spec
 from scaled_cognition_takehome.ICONS import ICONS
 
-
 BASE_WEATHER_API = "https://api.openweathermap.org"
+BASE_BING_API = "https://api.bing.microsoft.com/v7.0"
 
 
 @dataclass
@@ -68,7 +65,7 @@ def _get_weather(location: str, api_key: str):
     """
     endpoint = BASE_WEATHER_API + "/data/2.5/weather"
     params = {"q": location, "appid": api_key}
-    response = _get_api(endpoint, params)
+    response = _get_api(url=endpoint, params=params)
 
     if not response or response["cod"] != 200 or len(response) == 0:
         raise Exception("Error getting weather data")
@@ -144,19 +141,15 @@ def get_weather_image(query: str, api_key: str):
                     "image_url": "https://example.com/image1.jpg",
                     "thumbnail_url": "https://example.com/thumbnail1.jpg"
                 },
-                {
-                    "image_url": "https://example.com/image2.jpg",
-                    "thumbnail_url": "https://example.com/thumbnail2.jpg"
-                }
+                ...
             ]
         }
     """
-    base_url = "https://api.bing.microsoft.com/v7.0"
-    image_search_endpoint = "/images/search"
+
+    endpoint = BASE_BING_API + "/images/search"
     params = {"q": query, "imageType": "photo"}
     header = {"Ocp-Apim-Subscription-Key": api_key}
-    url = base_url + image_search_endpoint
-    response = _get_api(url=url, params=params, headers=header)
+    response = _get_api(url=endpoint, params=params, headers=header)
 
     if not response:
         raise Exception("Error getting image data")
@@ -206,9 +199,9 @@ class Services:
 
     def __init__(self, weather_api_key: str, bing_api_key: str):
         if not weather_api_key:
-            raise ValueError("Weather API key is required. Pass as arg or set OPEN_WEATHER_API_KEY")
+            raise ValueError("Weather API key is required. Use kwarg or set OPEN_WEATHER_API_KEY")
         if not bing_api_key:
-            raise ValueError("Bing API key is required. Pass as arg or set BING_API_KEY")
+            raise ValueError("Bing API key is required. Use kwarg or set BING_API_KEY")
 
         self.setup_weather_funcs(weather_api_key)
         self.setup_bing_funcs(bing_api_key)

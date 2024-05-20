@@ -1,6 +1,6 @@
-from typing import Sequence
 import time
 from functools import wraps
+from typing import Sequence
 
 
 def retry(
@@ -9,6 +9,20 @@ def retry(
     backoff: int = 2,
     exceptions: Sequence[Exception] = (Exception,),
 ) -> callable:
+    """
+    Decorator function that allows retrying the decorated function in case of exceptions.
+
+    Args:
+        max_retries (int): The maximum number of retries.
+        delay (int): The initial delay (in seconds) between retries.
+        backoff (int): The backoff factor for increasing the delay between retries.
+        exceptions (Sequence[Exception]): The exceptions to catch and retry on.
+
+    Returns:
+        callable: The decorated function.
+
+    """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
