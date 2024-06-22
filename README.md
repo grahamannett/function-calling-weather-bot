@@ -1,5 +1,7 @@
 # Weather Photo Bot Project/Takehome
 
+Note: After finishing, changed to using the @Tool.spec decorator to make the function calling/spec easier to define and use but did not test it.
+
 ## Setup
 
 This project was initialized with PDM, which provides a robust package management system. To set up the project, you have two options:
