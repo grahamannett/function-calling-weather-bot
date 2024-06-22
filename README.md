@@ -1,53 +1,75 @@
-# scaled-cognition-takehome Project
+# Weather Photo Bot Project/Takehome
 
-Graham Annett
+## Setup
 
-The project was initialized with pdm so it is possibly more boilerplate than necessary but I find that it's better to just always use something like pdm to start a project rather than attempting to migrate as it can be a pain.
+This project was initialized with PDM, which provides a robust package management system. To set up the project, you have two options:
 
-To setup, you can use `pip install -r requirements && pip install -e .` or `pdm install && pdm sync` should also work. I believe the only external dependencies are `requests` `openai` and `rich`.  I used rich to print to the console as I like the colorized output but it is probably not really necessary for this project. The `console.py` is just a generic file I have used in a few of my projects that gives a nice interface to print and log to the console.
+1. Using pip:
+   - `pip install -r requirements && pip install -e .`
+2. Using PDM:
+   - `pdm install && pdm sync`
 
-I have all the keys in an `.env` file but you can pass them in as environment variables or as arguments to the main.py file.
+**External dependencies:** The main external dependencies are `requests`, `openai`, and `rich`. Rich is used for colorized console output, enhancing readability during development.
 
-env file will look like (and can be sourced like `source .env` or set the ENV variables in the terminal or pass in to the main.py file):
+## Environment Setup
 
-```
+Store your API keys in a `.env` file or pass them as environment variables. The required keys are:
+
+```bash
 OPENAI_API_KEY=sk-...
 OPEN_WEATHER_API_KEY=9...
 BING_API_KEY=f...
 ```
 
-To make the zip file I used `zip -r graham_annett.zip src/ tests/ .gitignore main.py .pdm-python pdm.lock pyproject.toml README.md requirements.txt ` so hopefully it has everything and not included the `.venv` or `.git` folders.
+You can source the `.env` file using `source .env` or set the environment variables directly in your terminal.
 
-# Overview
+## Project Structure
 
-For this project, I had not used the function calling API so I am not entirely sure what the best practices are for using it. The example they give (the weather calling one with multiple functions) made it seem like you could chain sequential function calls together rather than having to define the logic yourself (e.g. get the weather and from the weather get the image). Apparently that is not the case, so I ended up including the functionality just as one function in `ConversationHandler.process_input` but probably could rather make it return the image with the weather data and then have the image url be a part of the response.
+The project follows a standard Python package structure:
 
-All of the non-OpenAI services/APIs are a part of `services.py` and it is setup so it should be easier to test them on their own. I did this by having the functions pretty independent and just using a partial on them so that I pass the API key during the `Services.__init__`. I moved everything from originally being in classes when I realized that using class instances would likely result in a less ideal way to call the functions (calling the instances rather than just using a partial on the functions) and would make testing require more setup, but if there was more state or functionality related to these services it would make sense to move them back into classes.
-I wrote some tests and they all pass but they mostly were to just get the APIs working before integrating it into the function calling. I did not write tests for the function calling because it seemed like the correct way to do it would require me to either mock or stub various parts of responses and seemed like that would eat up a lot of time.
-In terms of the API's, I went with the deprecated API that lets you call by City/City+Country Code/City+State Code/Country Code rather than using the City ID to look up the lat+lon and then call the weather as that seemed slower and adding unnecessary complications but if it was a production system it would be advisable not to use the deprecated API.
+- `src/`: Contains the main source code
+- `tests/`: Includes test files
+- `main.py`: Entry point of the application
+- `pyproject.toml`: Project configuration file
+- `README.md`: This file, providing project overview and setup instructions
 
-I put some effort into trying to catch various errors and where I thought would be the appropriate level to catch them e.g. catching higher up when I could try and generate a response from the function calling API rather than just failing and returning text.
+## Overview
 
-Although I have not used the [Instructor](https://github.com/jxnl/instructor/) library, I have heard about it and makes me curious how they handle a bunch of the function calling as seems like you need to keep a lot of the data in dicts for it to be used in storing the message (i.e. the `"content": tool_response`), seems like there is a lot of structuring back and forth from wrapped dataclasses/pydantic models to dicts and then to strings if so which might be a lot of overhead as data grows (unless they are just subclasses UserDicts?)
+### API Integration
 
-After implementing a bit and then re-reading the function calling docs, I realized they have you just pass the results back to generate a response (rather than calling the model independently asking it to generate a unique response with the given data). I had originally implemented a way to have the model generate a response myself with something like:
+This project integrates multiple APIs to create a weather photo bot:
 
-```python
-system_content = craft_system_response(tool_response)
-system_response = self.llm_handler.individual_response(system_content)
-content = system_response.choices[0].message.content
-self.llm_handler.add_assistant_message(content)
-```
+1. **OpenAI API**: Used for natural language processing and function calling.
+2. **OpenWeather API**: Provides weather data for specified locations.
+3. **Bing Image Search API**: Retrieves relevant images based on weather conditions.
 
-but I am guessing it is preferred/less error prone to use the official way of doing it (as the model may provide boilerplate like "Sure thing here is the response:\n"), but it seemed from my few comparisons that the crafted responses were much more varied and interesting so doing it this way may be actually more interesting and I left the basic idea here and then the original function is still in the code.
+### Implementation Details
+
+- The `ConversationHandler.process_input` method combines the functionality of weather data retrieval and image search into a single function call.
+- Non-OpenAI services are implemented in `services.py`, designed for easy testing and modularity.
+- The project uses the deprecated OpenWeather API that allows city name lookup, chosen for simplicity in this demonstration. For production use, it's advisable to use the current API with geocoding.
+
+### Error Handling
+
+Effort has been made to catch various errors at appropriate levels, especially in the function calling API to generate responses even in case of partial failures.
+
+### Testing
+
+Basic tests have been implemented for the API services. However, comprehensive tests for the function calling feature were not included due to time constraints and the complexity of mocking responses.
+
+## Potential Further Improvements
+
+1. Consider using the [Instructor](https://github.com/jxnl/instructor/) library for more efficient function calling and data handling.
+2. Implement more varied and interesting response generation by crafting custom system prompts.
+3. Expand test coverage, especially for the function calling features.
+4. Migrate to the current OpenWeather API with geocoding for production use.
 
 
-# docs and references
+# Docs/References
 - bing image
   - https://github.com/MicrosoftDocs/bing-docs/blob/main/bing-docs/bing-image-search/how-to/get-images.md
-  - sdk
-    - first attempt using the sdk gave me a resource not found error, so switched to the REST API which is working
-    - https://github.com/MicrosoftDocs/bing-docs/blob/main/bing-docs/bing-image-search/quickstarts/sdk/image-search-client-library-python.md
+  - https://github.com/MicrosoftDocs/bing-docs/blob/main/bing-docs/bing-image-search/quickstarts/sdk/image-search-client-library-python.md
+    - SDK gave me resource not found error, -> using REST API instead
 - openai
   - https://platform.openai.com/docs/api-reference/runs
   - https://platform.openai.com/docs/guides/function-calling
@@ -58,3 +80,33 @@ but I am guessing it is preferred/less error prone to use the official way of do
 - openweather icons
   - https://github.com/holyCowMp3/openweather-icons-to-emoji
 
+
+
+# Original Info
+
+```
+Weather Photo Bot
+Scaled Cognition Engineering Take-Home Specification
+Please implement a simple chatbot that can respond to utterances semantically similar to: Show me what the weather in Vancouver looks like right now.
+To respond, the chatbot will:
+1. Get the current weather in Vancouver (or whichever location is specified).
+2. Run an image search corresponding to that weather (e.g. cloudy day in Vancouver) 3. Deliver a response to the user, including at least one URL of the images matching that weather.
+Example Transcript
+(You do not need to match the exact utterances.)
+Hi! How can I help you today?
+What does the weather look like today in Cambridge, MA?
+Of course; I’ve pulled that up for you: https://example.com
+How about the weather in Seoul?
+I’ve found that as well: https://example.com
+… (continuing until the user kills the program with a KeyboardInterrupt)
+Guidelines
+● Your implementation should make use of the following:
+  ○ OpenAI Function Calling API
+  ○ Bing Image Search API
+  ○ OpenWeatherMap weather and geocoding APIs (free under 1000 requests/day)
+● Name the entry point of your application main.py. It should be runnable as python main.py. The command-line interface should be simple and intuitive.
+● Provide all API keys as command-line parameters. Don’t hard-code and leak API keys!
+● List any external packages you choose to use in a requirements.txt file. ● Display meaningful messages in case of errors.
+● Use good coding practices, and be prepared to discuss decisions you made about your design and implementation. Include a README with an overview of your implementation and decision-making.
+● We are interested in the proficiency, cleanliness, and creativity of your approach. This is of course a contrived environment, but the goal is to write something as close to production code as possible.
+```

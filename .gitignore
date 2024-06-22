@@ -165,4 +165,4 @@ spec.pdf
 tests/mock/**
 **/*.DS_Store
 ignore/
-graham_annett.zip
+**.zip

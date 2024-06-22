@@ -1,10 +1,11 @@
 import argparse
 from os import getenv
 
-from scaled_cognition_takehome.conversation_handler import ConversationHandler
+from function_calling_weather_bot.conversation_handler import ConversationHandler
 
 
 def main(args: argparse.Namespace):
+    print("using OpenAI API key:", args.openai_api_key)
     convo_handler = ConversationHandler(
         weather_api_key=args.open_weather_api_key,
         bing_api_key=args.bing_api_key,

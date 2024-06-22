@@ -2,7 +2,7 @@ import os
 
 import unittest
 
-from scaled_cognition_takehome.services import (
+from function_calling_weather_bot.services import (
     get_weather_from_city_name,
     get_weather_image,
     Services,

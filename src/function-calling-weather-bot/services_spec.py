@@ -1,5 +1,4 @@
-# Could probably put this on the function itself as docs and grab it from there but
-# will take more time to do that
+# Could put this on the function itself as docs and grab
 available_weather_specs = [
     {
         "type": "function",

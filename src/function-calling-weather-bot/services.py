@@ -3,8 +3,7 @@ from functools import partial
 
 import requests
 
-from scaled_cognition_takehome import console, services_spec
-from scaled_cognition_takehome.ICONS import ICONS
+from function_calling_weather_bot import console, services_spec, ICONS
 
 BASE_WEATHER_API = "https://api.openweathermap.org"
 BASE_BING_API = "https://api.bing.microsoft.com/v7.0"

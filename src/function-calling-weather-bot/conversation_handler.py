@@ -6,9 +6,9 @@ from openai import OpenAI
 from openai.types.chat.chat_completion import ChatCompletion
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
 
-from scaled_cognition_takehome import console
-from scaled_cognition_takehome.services import Services, WeatherData
-from scaled_cognition_takehome.utils import retry
+from function_calling_weather_bot import console
+from function_calling_weather_bot.services import Services, WeatherData
+from function_calling_weather_bot.utils import retry
 
 CONVO_END = ["exit", "quit", "stop"]
 

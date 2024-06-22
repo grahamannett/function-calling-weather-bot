@@ -1,13 +1,9 @@
 [project]
-    name = "scaled-cognition-takehome"
+    name = "function-calling-weather-bot"
     version = "0.0.0"
-    description = "Default template for PDM package"
+    description = "weather + photo bot with function calling"
     authors = [{ name = "graham", email = "graham.annett@gmail.com" }]
-    dependencies = [
-        "openai>=1.30.1",
-        "requests>=2.31.0",
-        "rich>=13.7.1",
-    ]
+    dependencies = ["openai>=1.30.1", "requests>=2.31.0", "rich>=13.7.1"]
     requires-python = "==3.11.*"
     readme = "README.md"
     license = { text = "none" }
