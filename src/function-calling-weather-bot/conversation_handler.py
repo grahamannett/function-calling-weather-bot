@@ -8,7 +8,7 @@ from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMe
 
 from function_calling_weather_bot import console
 from function_calling_weather_bot.services import Services, WeatherData
-from function_calling_weather_bot.utils import retry
+from function_calling_weather_bot.utils import retry, Tool
 
 CONVO_END = ["exit", "quit", "stop"]
 
@@ -99,7 +99,7 @@ class LLMHandler:
         response = self.client.chat.completions.create(
             model=self.model_id,
             messages=messages or self.messages,
-            tools=Services.available_weather_specs,
+            tools=Tool.get_all_specs(),
             tool_choice="auto",
         )
         return response

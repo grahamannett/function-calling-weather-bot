@@ -47,12 +47,12 @@ class Services:
             api_key (str): The API key for accessing the weather service.
         """
         self.weather_funcs = {
-            "get_weather_from_city_name": partial(utils.get_weather_from_city_name, api_key=api_key),
+            "get_weather_from_city_name": partial(services_spec.get_weather_from_city_name, api_key=api_key),
             "get_weather_from_city_name_and_country": partial(
-                utils.get_weather_from_city_name_and_country, api_key=api_key
+                services_spec.get_weather_from_city_name_and_country, api_key=api_key
             ),
             "get_weather_from_city_name_and_state_code_and_country_code": partial(
-                utils.get_weather_from_city_name_and_state_code_and_country_code, api_key=api_key
+                services_spec.get_weather_from_city_name_and_state_code_and_country_code, api_key=api_key
             ),
         }
 
@@ -64,5 +64,5 @@ class Services:
             api_key (str): The API key for accessing the image search service.
         """
         self.bing_funcs = {
-            "get_weather_image": partial(utils.get_weather_image, api_key=api_key),
+            "get_weather_image": partial(services_spec.get_weather_image, api_key=api_key),
         }

@@ -1,15 +1,12 @@
+import json
 import time
 from dataclasses import dataclass
 from functools import wraps
 from typing import Sequence
 
 import requests
+from function_calling_weather_bot import ICONS
 
-from function_calling_weather_bot import ICONS, console
-
-
-BASE_WEATHER_API = "https://api.openweathermap.org"
-BASE_BING_API = "https://api.bing.microsoft.com/v7.0"
 
 
 @dataclass
@@ -90,7 +87,7 @@ def _get_api(url: str, params: dict, headers: dict = None) -> dict:
     return response.json()
 
 
-def _get_weather(location: str, api_key: str):
+def _get_weather(location: str, api_key: str, weather_url: str):
     """
     Get the weather data for a specific location.
 
@@ -104,7 +101,7 @@ def _get_weather(location: str, api_key: str):
     Returns:
         WeatherData: An object containing the weather information for the location.
     """
-    endpoint = BASE_WEATHER_API + "/data/2.5/weather"
+    endpoint = weather_url + "/data/2.5/weather"
     params = {"q": location, "appid": api_key}
     response = _get_api(url=endpoint, params=params)
 
@@ -120,97 +117,24 @@ def _get_weather(location: str, api_key: str):
     )
 
 
-def get_weather_from_city_name(city_name: str, api_key: str):
-    """
-    Retrieves weather information for a given city name.
+class Tool:
+    specs = {}  # Class-level dictionary to store specs
 
-    Args:
-        city_name (str): The name of the city.
-        api_key (str): The API key for accessing the weather data.
+    @classmethod
+    def spec(cls, spec: str | dict) -> callable:
+        if isinstance(spec, dict):
+            spec = json.dumps(spec, indent=2)
 
-    Returns:
-        dict: A dictionary containing the weather information for the specified city.
-    """
-    return _get_weather(location=city_name, api_key=api_key)
+        def decorator(func: callable):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                return func(*args, **kwargs)
+            # Store the spec with function's name as key
+            wrapper._tool_spec = spec
+            cls.specs[func.__name__] = spec
+            return wrapper
+        return decorator
 
-
-def get_weather_from_city_name_and_country(city_name: str, country: str, api_key: str):
-    """
-    Retrieves the weather information for a given city and country.
-
-    Args:
-        city_name (str): The name of the city.
-        country (str): The country code.
-        api_key (str): The API key for accessing the weather data.
-
-    Returns:
-        dict: A dictionary containing the weather information.
-
-    """
-    return _get_weather(location=f"{city_name},{country}", api_key=api_key)
-
-
-def get_weather_from_city_name_and_state_code_and_country_code(
-    city_name: str, state_code: str, country_code: str, api_key: str
-):
-    # api.openweathermap.org/data/2.5/weather?q={city name},{state code},{country code}&appid={API key}
-    return _get_weather(f"{city_name},{state_code},{country_code}", api_key)
-
-
-def get_weather_image(query: str, api_key: str):
-    """
-    Retrieves weather-related images based on the provided query using the Bing Image Search API.
-
-    Args:
-        query (str): The query should be in the format of "{weather condition} in {city}, {country code}".
-        api_key (str): The API key for accessing the Bing Image Search API.
-
-    Returns:
-        dict: A dictionary containing a list of image URLs and thumbnail URLs.
-
-    Raises:
-        Exception: If there is an error getting the image data.
-        Exception: If no images are found.
-
-    Example:
-        >>> query = "sunny weather in Los Angeles, US"
-        >>> api_key = "your_api_key"
-        >>> get_weather_image(query, api_key)
-        {
-            "images": [
-                {
-                    "image_url": "https://example.com/image1.jpg",
-                    "thumbnail_url": "https://example.com/thumbnail1.jpg"
-                },
-                ...
-            ]
-        }
-    """
-
-    endpoint = BASE_BING_API + "/images/search"
-    params = {"q": query, "imageType": "photo"}
-    header = {"Ocp-Apim-Subscription-Key": api_key}
-    response = _get_api(url=endpoint, params=params, headers=header)
-
-    if not response:
-        raise Exception("Error getting image data")
-
-    if len(response_values := response.get("value", [])) == 0:
-        raise Exception("No images found")
-
-    image_data = {"images": []}
-    for value in response_values:
-        image_url = value.get("contentUrl", None)
-        thumbnail_url = value.get("thumbnailUrl", None)
-        if not image_url and not thumbnail_url:
-            console.error("Image URL or Thumbnail URL is None")
-            continue
-
-        image_data["images"].append(
-            {
-                "image_url": image_url,
-                "thumbnail_url": thumbnail_url,
-            }
-        )
-
-    return image_data
+    @classmethod
+    def get_all_specs(cls):
+        return cls.specs
